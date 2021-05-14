@@ -1,0 +1,48 @@
+.menu {
+  width: 100%;
+  height: var(--menu-height);
+}
+
+.menu__navBtn {
+  background: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+.menu__navBtn .menu__navBtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.menu__list {
+  position: absolute;
+  z-index: 1;
+  height: calc(100vh - var(--menu-height));
+  left: 0;
+  top: var(--menu-height);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--primary-color);
+  box-shadow: 0 5px 12px 0 #0000005c;
+  transition: transform 0.2s;
+  will-change: transform;
+}
+
+.menu__list_hidden {
+  transform: translateX(-100%);
+}
+
+.menu__item {
+    position: relative;
+  margin: 16px 24px 16px 40px;
+  overflow: hidden;
+}
+
+.menu__item input[type="file"] {
+    position: absolute;
+    right: 0;
+    opacity: 0;
+    cursor: pointer;
+}

@@ -1,0 +1,10 @@
+.content {
+    display: flex;
+    justify-content: center;
+    transition: filter .2s;
+}
+
+.content_blured {
+    filter: blur(8px);
+    user-select: none;
+}

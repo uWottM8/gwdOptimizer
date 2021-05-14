@@ -1,0 +1,16 @@
+{
+    "menuItems": [
+        {
+            "key": 0,
+            "title": "Upload html"
+        },
+        {
+            "key": 1,
+            "title": "Paste html"
+        },
+        {
+            "key": 2,
+            "title": "3"
+        }
+    ]
+}

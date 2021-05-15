@@ -2,15 +2,8 @@ import {useState} from "react";
 import styles from './Menu.module.css';
 import menuData from './Menu.json';
 
-const Menu = ({hidden, menuHiddenHandler}) => {
+const Menu = ({hidden, menuHiddenHandler, fileUploadHandler}) => {
     const { menuItems } = menuData;
-    const menuItemsHandlers = {
-        0: {
-            clickHandler: {
-
-            }
-        }
-    };
 
     return (
         <nav className={styles.menu}>
@@ -27,8 +20,13 @@ const Menu = ({hidden, menuHiddenHandler}) => {
                             {item.title}
                             {
                                 item.key === 0
-                                    ? (<input type="file" name="file" accept=".html"/>)
-                                    : null
+                                    ? (
+                                        <input 
+                                        type="file" 
+                                        name="file" 
+                                        accept=".html"
+                                        onChange={fileUploadHandler}/>
+                                        ) : null
                             }
                         </li>
                     ))

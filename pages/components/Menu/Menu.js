@@ -2,8 +2,15 @@ import {useState} from "react";
 import styles from './Menu.module.css';
 import menuData from './Menu.json';
 
-const Menu = ({hidden, menuHiddenHandler, fileUploadHandler}) => {
+import ContentUploader from '../ContentUploader/ContentUploader';
+import ContentInserter from '../ContentInserter/ContentInserter';
+
+const Menu = ({hidden, menuHiddenHandler, fileUploadHandler, fileInsertHandler}) => {
     const { menuItems } = menuData;
+    const menuElementsList = [
+        <ContentUploader fileUploadHandler={fileUploadHandler}/>,
+        <ContentInserter fileInsertHandler={fileInsertHandler}/>
+    ];
 
     return (
         <nav className={styles.menu}>
@@ -18,16 +25,7 @@ const Menu = ({hidden, menuHiddenHandler, fileUploadHandler}) => {
                     menuItems.map((item) => (
                         <li key={item.key} className={styles.menu__item}>
                             {item.title}
-                            {
-                                item.key === 0
-                                    ? (
-                                        <input 
-                                        type="file" 
-                                        name="file" 
-                                        accept=".html"
-                                        onChange={fileUploadHandler}/>
-                                        ) : null
-                            }
+                            {menuElementsList[item.key]}
                         </li>
                     ))
                 }

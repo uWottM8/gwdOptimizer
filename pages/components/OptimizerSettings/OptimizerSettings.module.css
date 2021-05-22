@@ -1,0 +1,19 @@
+.optimizerSettings {
+}
+
+.optimizerSettings__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 5px 12px 0 #0000005c;
+    transition: transform .2s;
+    transform: translateX(calc(100% + 32px));
+}
+
+.optimizerSettings__list_active {
+    transform: none;
+}
+
+.optimizerSettings__item {
+    padding: 8px 40px 8px 24px;
+}

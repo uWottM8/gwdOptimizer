@@ -15,7 +15,13 @@ a {
   box-sizing: border-box;
 }
 
+h1,
+h2,
+h3 {
+  line-height: 1.5;
+}
+
 :root {
-  --primary-color: #ffc979;
+  --primary-color: #2bbf58;
   --menu-height: 40px;
 }

@@ -11,5 +11,12 @@
     "next": "10.x",
     "react": "17.x",
     "react-dom": "17.x"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/plugin-proposal-private-methods": "^7.13.0",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "babel": "^6.23.0",
+    "jsdom": "^16.5.3"
   }
 }

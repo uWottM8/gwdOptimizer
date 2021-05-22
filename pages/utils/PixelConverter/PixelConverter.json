@@ -1,0 +1,60 @@
+{
+    "cssPropsDescriptions": {
+        "width": {
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+        "height": {
+            "dependentsOn": "height",
+            "dependencyOwner": "parent"
+        },
+        "left": {
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+        "right": {
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+        "top": {
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+        "bottom": {
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+        "margin": {
+            "isComplex": true,
+            "dependencyOwner": "parent",
+            "dependentsOn": "width"
+        },
+        "padding": {
+            "isComplex": true,
+            "dependentsOn": "width",
+            "dependencyOwner": "parent"
+        },
+
+        "transform": {
+            "isComplex": true,
+            "isFunctional": true,
+            "dependencyOwner": "self"
+        },
+        "transform-origin": {
+            "isComplex": true,
+            "dependencyOwner": "self"
+        },
+
+        "animation": {}
+    },
+
+    "cssFunctionsDescriptions": {
+        "translate3d": { "isVolumable": true }
+    },
+
+    "parsePatterns": {
+        "complexValue":  "\"-?\\\\d+[^(3d)\\\\(,\\\\s]+\"",
+        "functionName": "\"^\\\\w*\"",
+        "functionCall": "\"\\\\w+\\\\([^\\\\)]*\\\\)\""
+    }
+}

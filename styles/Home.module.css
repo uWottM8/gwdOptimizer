@@ -1,0 +1,7 @@
+.main {
+    display: flex;
+    flex-direction: row;
+    padding: 16px 32px;
+    overflow: hidden;
+    transition: filter .2s;
+}

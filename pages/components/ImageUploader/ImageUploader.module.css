@@ -1,0 +1,40 @@
+.imagesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.imagesList__item {
+    padding: 0;
+    margin: 0 0 16px;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+}
+
+.imagesList__title {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.imagesList__uploadBtn {
+    position: relative;
+    font-weight: inherit;
+    font-size: 16px;
+    background: transparent;
+    border: 4px solid var(--primary-color);
+    padding: 4px 16px;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.imagesList__uploadBtn input[type="file"] {
+    position: absolute;
+    right: 0;
+    opacity: 0;
+    cursor: pointer;
+}

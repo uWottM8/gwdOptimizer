@@ -1,9 +1,17 @@
+import {useRef, useEffect} from 'react';
 import styles from './Content.module.css';
 
-const Content = ({blurState}) => {
+const Content = ({htmlContent}) => {
+    const contentBlockRef = useRef(null);
+    useEffect(() => {
+        const block = contentBlockRef.current;
+        block.innerHTML = htmlContent;
+    }, [htmlContent]);
+
     return (
-        <div className={`${styles.content}${blurState ? " " + styles.content_blured : ""}`}>
-            <h1>Test</h1>
+        <div 
+            ref={contentBlockRef} 
+            className={styles.content}>
         </div>
     ); 
 }

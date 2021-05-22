@@ -10,11 +10,6 @@
   border: none;
 }
 
-.menu__navBtn .menu__navBtn svg {
-  width: 24px;
-  height: 24px;
-}
-
 .menu__list {
   position: absolute;
   z-index: 1;
@@ -35,14 +30,7 @@
 }
 
 .menu__item {
-    position: relative;
+  position: relative;
   margin: 16px 24px 16px 40px;
   overflow: hidden;
-}
-
-.menu__item input[type="file"] {
-    /* position: absolute;
-    right: 0;
-    opacity: 0;
-    cursor: pointer; */
 }

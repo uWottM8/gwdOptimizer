@@ -1,0 +1,60 @@
+
+
+.contentObserver {
+    position: relative;
+    margin: 0 auto;
+}
+
+.contentObserver__animationRemoved * {
+    animation: none!important;
+}
+
+.contentObserver__animationStopped * {
+    animation-play-state: paused!important;
+}
+
+.contentObserver__animationWrapper {
+    position: relative;
+    flex-grow: 1;
+}
+
+.contentObserver__animationWrapper_edit::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: var(--primary-color);
+}
+
+.contentObserver__toggler {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    left: 100%;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    background-color: #00000073;
+    transition: background-color .3s, opacity .3s;
+    font-weight: 600;
+    color: white;
+    font-size: 20px;
+    z-index: 10;
+}
+
+.contentObserver:hover .contentObserver__toggler {
+    opacity: 1;
+}
+
+.contentObserver__toggler:hover {
+    background-color: #000000b0;
+}
+
+.contentObserver__toggler::after {
+    content: '||';
+}

@@ -1,5 +1,6 @@
 import converterData from './PixelConverter.json';
-import createHashFromString from '../JsHash/JsHash';
+import { JSDOM } from "jsdom";
+import CssParser from "../CssParser/CssParser";
 
 class PixelConverter {
     #defaultSettings = {
@@ -8,16 +9,15 @@ class PixelConverter {
 
     #settings = {};
 
-    constructor({ styleSheets: { cssRules, cssAnimations }, document, settings = {} }) {
+    // constructor({ styleSheets: { cssRules, cssAnimations }, document, settings = {} }) {
+    constructor(settings) {
         this.#settings = { ...settings, ...this.#defaultSettings };
-        this.cssRules = cssRules;
-        this.cssAnimations = cssAnimations;
-        this.document = document;
-        this.#initSelectorToElementConnections();
-        this.#calcContainerSizes();
-        //this.#appendAnimationRootElement(); в последнюю очередь
-        this.convertPixelsToPercents();
-        //console.log('containerSizes are', this.containerSizes);
+        //this.document = new JSDOM().window.document;
+        // this.cssRules = { ...cssRules };
+        // this.cssAnimations = { ...cssAnimations };
+        // this.document = document;
+        // this.#initSelectorToElementConnections();
+        // this.#calcContainerSizes();
     }
 
     #initSelectorToElementConnections() {
@@ -26,11 +26,12 @@ class PixelConverter {
                 .split(',')
                 .map((str) => str.trim())
                 .forEach((selector) => this.#attachSelectorToElement(selector));
-
         }
     }
 
     #attachSelectorToElement(selector) {
+        console.log({selector});
+
         const element = this.document.querySelector(selector);
         if (!element) {
             console.log('\x1b[31m',
@@ -49,24 +50,9 @@ class PixelConverter {
         element.selectors.push(selector);
     }
 
-    // rewriteContainerSizeAttribute(selector, attributeName, mathFunc) {
-    //     const selectorRules = this.cssRules[selector];
-    //     if (!(attributeName in selectorRules)) {
-    //         return;
-    //     }
-
-    //     const newValue = selectorRules[attributeName];
-    //     if (!newValue.includes('px')) {
-    //         return;
-    //     }
-
-    //     const parsedValue = parseFloat(newValue)
-    //     const currentValue = this.containerSizes[attributeName];
-    //     this.containerSizes[attributeName] = mathFunc(parsedValue, currentValue);
-    // }
-
     //придумать другой алгоритм для вычисления максимальной ширины и высоты контейнера
     #calcContainerSizes(startElement = this.document.body) {
+
         if (!this.containerSizes) {
             this.containerSizes = { width: 0, height: 0 };
         }
@@ -75,15 +61,40 @@ class PixelConverter {
             return;
         }
 
+        const borderBoxParams = {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 0,
+            height: 0
+        }
+
         const { selectors } = startElement;
+
+        // if (selectors) {
+        //     const cssRules = selectors
+        //         .map((selector) => this.cssRules[selector])
+        //         .reduce((obj, rules) => ({...obj, ...rules}), {});
+
+        //     for (const param in borderBoxParams) {
+        //         if (!(param in cssRules)) {
+        //             continue;
+        //         }
+        //         const value = cssRules[param]
+        //         const parsedValue = value.includes('px') ? parseFloat(value) : 0;
+        //         borderBoxParams[param] = parsedValue;
+        //     }
+        // }
+
+        // const calculatedWidth = borderBoxParams.width + borderBoxParams.left - borderBoxParams.right;
+        // const calculatedHeight = borderBoxParams.height + borderBoxParams.top - borderBoxParams.bottom;
+
+        // this.containerSizes.width = Math.max(calculatedWidth, this.containerSizes.width);
+        // this.containerSizes.height = Math.max(calculatedHeight, this.containerSizes.height);
 
         if (selectors) {
             selectors.forEach((selector) => {
-                // console.log(this.document.querySelector(selector).tagName)
-                // this.rewriteContainerSizeAttribute(selector, 'top', (newValue, currentValue) => Math.max(0, this.containerSizes.bottom, Math.min(newValue, currentValue)));
-                // this.rewriteContainerSizeAttribute(selector, 'left', (newValue, currentValue) => Math.max(0, this.containerSizes.right, Math.min(newValue, currentValue)));
-                // this.rewriteContainerSizeAttribute(selector, 'bottom', (newValue, currentValue) => Math.max(newValue, currentValue, this.containerSizes.top));
-                // this.rewriteContainerSizeAttribute(selector, 'right', (newValue, currentValue) => Math.max(newValue, currentValue, this.containerSizes.left));
                 const selectorRules = this.cssRules[selector];
                 if ('width' in selectorRules) {
                     const { width: newWidth } = selectorRules;
@@ -108,23 +119,6 @@ class PixelConverter {
 
         const children = [...startElement.children];
         children.forEach((child) => this.#calcContainerSizes(child));
-    }
-
-    #appendAnimationRootElement() {
-        const rootClass = "animation-root";
-        const rootClassExtended = `${rootClass}-${createHashFromString(rootClass)}`;
-        const cssRules = {
-            position: 'relative',
-            width: `${this.containerSizes.width}px`,
-            height: `${this.containerSizes.height}px`
-        }
-        const rootClassSelector = `.${rootClassExtended}`;
-        this.cssRules[rootClassSelector] = cssRules;
-        const rootElement = this.document.createElement('div');
-        rootElement.classList.add(rootClassExtended);
-        rootElement.innerHTML = this.document.body.innerHTML;
-        this.document.body.innerHTML = rootElement.outerHTML;
-        this.document.body.children[0].selectors = [rootClassSelector]; //добавление дополнительных свойст только через DOM!
     }
 
     #convertSimpleCssValue(value, baseValue) {
@@ -221,53 +215,51 @@ class PixelConverter {
         return this.#convertFunctionalComplexCssValue(cssValue, baseWidth, baseHeight);
     }
 
-    #convertCssAnimation(animationPropValue, parentSizes, currentElementSizesInPx) {
+    #convertCssAnimation(animationPropValue, currentElementSizesInPx, parentSizes) {
         console.log()
         console.log('cssAnimation');
 
         const animationName = animationPropValue.split(' ').find((str) => str in this.cssAnimations); //узнаем, что является именем анимации
         const animationObj = this.cssAnimations[animationName];
         for (const animationName in animationObj) {
-            //вынести все, что ниже, в отдельный метод rewriteCssRulesForSelector
             const elementRules = animationObj[animationName];
-            for (const cssProp in elementRules) {
-                const dependencyInfo = this.#settings.cssPropsDescriptions[cssProp];
-                if (!dependencyInfo) { //если значения свойства непереводимы
-                    continue;
-                } else {
-                    const cssValue = elementRules[cssProp];
-                    const { dependencyOwner } = dependencyInfo;
-                    const baseSizes = dependencyOwner === 'parent'
-                        ? { baseWidth: parentSizes.width, baseHeight: parentSizes.height }
-                        : { baseWidth: currentElementSizesInPx.width, baseHeight: currentElementSizesInPx.height };
-                    
-                        if (cssProp === 'animation') {
-                            this.#convertCssAnimation(cssValue, parentSizes, currentElementSizesInPx);
-                        } else {
-                            const convertedPropValue = this.#convertSingleCssRule(cssValue, baseSizes, dependencyInfo);
-                            elementRules[cssProp] = convertedPropValue;
-                        }
-                }
+            this.#rewriteElementCssRules(elementRules, currentElementSizesInPx, parentSizes);
+        }
+    }
+
+    #rewriteElementCssRules(elementRules, currentElementSizesInPx, parentSizes) {
+        for (const cssProp in elementRules) {
+            const dependencyInfo = this.#settings.cssPropsDescriptions[cssProp];
+            if (!dependencyInfo) { //если значения свойства непереводимы
+                continue;
+            } else {
+                const cssValue = elementRules[cssProp];
+                const { dependencyOwner } = dependencyInfo;
+                const baseSizes = dependencyOwner === 'parent'
+                    ? { baseWidth: parentSizes.width, baseHeight: parentSizes.height }
+                    : { baseWidth: currentElementSizesInPx.width, baseHeight: currentElementSizesInPx.height };
+                
+                    if (cssProp === 'animation') {
+                        this.#convertCssAnimation(cssValue, currentElementSizesInPx, parentSizes);
+                    } else {
+                        const convertedPropValue = this.#convertSingleCssRule(cssValue, baseSizes, dependencyInfo);
+                        elementRules[cssProp] = convertedPropValue;
+                    }
             }
         }
     }
 
-    #rewriteElementCssRules(elementRules) {
-        
-    }
-
-    convertPixelsToPercents(startElement = this.document.body, parentSizes = null) {
+    #convertPixelsToPercents(startElement = this.document.body, parentSizes = null) {
+        const startIsRoot = startElement === this.document.body;
         const { selectors } = startElement;
-        if (!selectors) {
+        if (!selectors && !startIsRoot) {
             console.log('no selectors');
             return;
         }
 
         const currentElementSizesInPx = { width: null, height: null };
 
-        if (!parentSizes) { //если начинаем с корневого элемента
-            const rootSelector = selectors[0];
-            const { width, height } = this.cssRules[rootSelector];
+        if (startIsRoot) { //если начинаем с корневого элемента
             currentElementSizesInPx.width = this.containerSizes.width;
             currentElementSizesInPx.height = this.containerSizes.width;
         } else {
@@ -276,28 +268,8 @@ class PixelConverter {
             currentElementSizesInPx.height = parseFloat(height);
 
             selectors.forEach((selector) => {
-                //вынести все, что ниже, в отдельный метод rewriteCssRulesForSelector
                 const elementRules = this.cssRules[selector];
-                for (const cssProp in elementRules) {
-                    const dependencyInfo = this.#settings.cssPropsDescriptions[cssProp];
-
-                    if (!dependencyInfo) { //если значения свойства непереводимы
-                        continue;
-                    } else {
-                        const cssValue = elementRules[cssProp];
-                        const { dependencyOwner } = dependencyInfo;
-                        const baseSizes = dependencyOwner === 'parent'
-                            ? { baseWidth: parentSizes.width, baseHeight: parentSizes.height }
-                            : { baseWidth: currentElementSizesInPx.width, baseHeight: currentElementSizesInPx.height };
-
-                        if (cssProp === 'animation') {
-                            this.#convertCssAnimation(cssValue, parentSizes, currentElementSizesInPx);
-                        } else {
-                            const convertedPropValue = this.#convertSingleCssRule(cssValue, baseSizes, dependencyInfo);
-                            elementRules[cssProp] = convertedPropValue;
-                        }
-                    }
-                }
+                this.#rewriteElementCssRules(elementRules, currentElementSizesInPx, parentSizes);
             });
         }
 
@@ -306,8 +278,91 @@ class PixelConverter {
         }
 
         [...startElement.children].forEach((child) => {
-            this.convertPixelsToPercents(child, currentElementSizesInPx);
+            this.#convertPixelsToPercents(child, currentElementSizesInPx);
         })
+    }
+
+    #writeDOMContent(htmlContent) {
+        // this.document.write(htmlContent);
+        this.document = new JSDOM(htmlContent).window.document;
+    }
+
+    #writeStylesContent() {
+        const styleSheets = Object.values(this.document.styleSheets)
+        .map((e) => e.cssRules)
+        .reduce((arr, v) => (arr.push(...v), arr), [])
+        .map((e) => e.cssText);
+
+        const {cssRules, cssAnimations} = CssParser.parseCSSToObj(styleSheets);
+        this.cssRules = { ...cssRules };
+        this.cssAnimations = { ...cssAnimations };
+    }
+
+    #replaceImagesWithSvg(imagesData) {
+        const imgAttrubitesToFilter = ["id", "class", "data"]; //ToDo вынести
+
+        imagesData.forEach(({name: imgName, value: imgValue}) => {
+            const image = this.document.querySelector(`img[src$="${imgName}"]`);
+            const imgAttributesStr = [...image.attributes]
+                .map(({ name, value }) => ({ name, value }))
+                .filter(
+                    ({ name }) =>
+                        imgAttrubitesToFilter.findIndex((imgAttr) =>
+                            name.includes(imgAttr)
+                        ) > -1
+                )
+                .reduce((str, { name, value }) => `${str} ${name}="${value}"`, "")
+                .trim();
+    
+            // const imgValueParts =  imgValue.match(/\s(?!width|height)\S*/gmi) // парсим в массив, убирая атрибуты width и height
+            // const imgValueToInsert = `<svg ${imgAttributesStr} ${imgValueParts.join('').trim()}`;
+            const imgValueToInsert = imgValue.replace('<svg', `<svg ${imgAttributesStr}`);
+            image.outerHTML = imgValueToInsert;
+        });
+    }
+
+    #insertStylesIntoDocument() {
+        const cssAnimations = this.cssAnimations;
+        const cssRules = this.cssRules;
+        const stylesStr = CssParser.parseObjToCss({cssAnimations, cssRules});
+        [...this.document.body.querySelectorAll('style')].forEach((el) => el.remove());
+        const stylesElement = this.document.createElement('style');
+        stylesElement.innerHTML = stylesStr;
+        this.document.body.prepend(stylesElement);
+    }
+
+    #setContainer() {
+        const {width, height} = this.containerSizes;
+        const aspectRatioCoef = `${(height / width * 100).toFixed(3)}%`;
+        const root = this.document.body;
+        const rootDataAttr = 'data-animation-root';
+        const rootSelector = `[${rootDataAttr}]`;
+        root.setAttribute(rootDataAttr, '');
+        this.cssRules[rootSelector] =  {
+            position: 'relative',
+            width: `100%`,
+            'padding-top': `${aspectRatioCoef}!important` 
+        };
+    }
+
+    parsePxToPercents(htmlString, imagesData) {
+        this.#writeDOMContent(htmlString);
+        this.#writeStylesContent();
+        this.#initSelectorToElementConnections();
+        this.#calcContainerSizes();
+        console.log(this.containerSizes);
+
+        this.#convertPixelsToPercents();
+        this.#replaceImagesWithSvg(imagesData);
+        this.#setContainer();
+        this.#insertStylesIntoDocument();
+
+
+        let bodyHTML = this.document.body.outerHTML;
+        bodyHTML = bodyHTML.replace('<body', '<div');
+        bodyHTML = bodyHTML.replace('</body', '</div');
+
+        return bodyHTML;
     }
 }
 

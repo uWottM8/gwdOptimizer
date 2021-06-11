@@ -17,11 +17,11 @@
             "dependencyOwner": "parent"
         },
         "top": {
-            "dependentsOn": "width",
+            "dependentsOn": "height",
             "dependencyOwner": "parent"
         },
         "bottom": {
-            "dependentsOn": "width",
+            "dependentsOn": "height",
             "dependencyOwner": "parent"
         },
         "margin": {
@@ -49,7 +49,8 @@
     },
 
     "cssFunctionsDescriptions": {
-        "translate3d": { "isVolumable": true }
+        "translate3d": { "isVolumable": true },
+        "translate": { "isVolumable": false }
     },
 
     "parsePatterns": {

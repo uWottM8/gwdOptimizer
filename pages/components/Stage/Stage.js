@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import styles from './Stage.module.css';
 
-const Stage = ({title, subtitle, children, storageKey}) => {
+const Stage = ({title, subtitle, storageKey, children}) => {
     const [isStageActive, toggleStage] = useState(true);
     const toggleStageBtnHandler = (event) => {
-        console.log('toggle');
         toggleStage(!isStageActive)
     }
 

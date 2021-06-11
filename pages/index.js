@@ -1,80 +1,131 @@
 import { useState, useEffect } from "react";
-import Head from 'next/head';
+import Hash from "./utils/Hash/Hash";
+import Head from "next/head";
 // import Menu from './components/Menu/Menu';
 // import Content from './components/Content/Content';
 // import OptimizerSettings from './components/OptimizerSettings/OptimizerSettings';
-import StagesList from './components/StageScene/StageScene';
-import styles from '../styles/Home.module.css';
+import StagesList from "./components/StageScene/StageScene";
+import styles from "../styles/Home.module.css";
 
+import parseImgNamesFromHtml from './utils/ImagesFromHtml/ImagesFromHtml';
+
+//почему не получается импортировать ?
+// import {ZipReader, BlobReader, TextWriter} from "@zip.js/zip.js";
 
 const Home = () => {
-  const [activeStage, setActiveStage] = useState(1);
-  const changeStageHandler = (stage) => {
-    setActiveStage(stage);
-  }
+    const [activeStage, setActiveStage] = useState(1);
 
-  // const [menuHiddenState, setMenuHiddenState] = useState(false);
-  const [content, setHtmlContent] = useState({ html: null, images: ['test', 'afasfa asfasf'] });
+    // const [menuHiddenState, setMenuHiddenState] = useState(false);
+    const [content, setContent] = useState({
+        name: null,
+        html: null,
+        images: [],
+    });
 
-  const fileUploadHandler = (file) => {
-    console.log('fileUploadHandler', file);
-    fetch('/api/parser', {
-      method: "POST",
-      body: file
-    }).then((res) => res.json())
-      .then((value) => console.log(value))
-  }
+    const htmlUploadHandler = async (htmlFile) => {
+        const {name: primaryFileName} = htmlFile;
+        const html = await htmlFile.text();
+        switchToImagesUploadStage(primaryFileName, html);
+    };
 
-  const fileInsertHandler = (htmlValue) => {
-    setHtmlContent({...content, html: htmlValue});
-    console.log('inserted')
-  }
+    const fileInsertHandler = (html) => {
+        switchToImagesUploadStage('index.html', html);
+    };
 
-  const imageInsertHandler = (imgValue) => {
-    setHtmlContent({...content, images: [...content.images, imgValue]});
-  }
-
-  const stagesHandlers = [
-    {
-      fileInsertHandler,
-      fileUploadHandler
-    },
-    {
-      imageInsertHandler
+    const switchToImagesUploadStage = (primaryFileName, html) => {
+        const secondaryFileName = Hash.createHashFileName(primaryFileName);
+        const imgNames = parseImgNamesFromHtml(html);
+        const images = imgNames.map((name) => ({name, value: null}));
+        setContent({ html, images, name: secondaryFileName });
+        setActiveStage(2);
     }
-  ]
 
-  return (
-    <>
-      <Head>
-        <title>Animation optimizer</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    const zipUploadHandler = async (zipFile) => {
+        const reader = new ZipReader(new BlobReader(zipFile));
+        const entries = await reader.getEntries()
+        const fileNamePattern = /[^\.\\\/]+\.\w+$/i;
+        const files = await Promise.all(entries
+            .filter(({filename}) => filename.match(fileNamePattern))
+            .map(async (entry) => {
+                const {filename} = entry;
+                    const shortFileName = filename.match(fileNamePattern)[0];
+                    const value = await entry.getData(new TextWriter());
+                    return {
+                        name: shortFileName,
+                        value 
+                    }
+        }));
+        const {value: html} = files.find(({name}) => name.includes('.html'));
+        const images = files.filter(({value}) => value !== htmlValue);
+        setContent({...content, html});
+        convertAnimation(images)
+    };
 
-      {/* <Menu
-        hidden={menuHiddenState}
-        menuHiddenHandler={menuHiddenHandler}
-        fileUploadHandler={fileUploadHandler} 
-        fileInsertHandler={fileInsertHandler}/>
+    const imageInsertHandler = async (files) => {
+        const images = await Promise.all(files.map(async (file) => {
+            const { name } = file;
+            const value = await file.text();
+            return {
+                name,
+                value,
+            };
+        }))
 
-      <main className={styles.main} style={{filter: menuHiddenState ? 'none' : 'blur(8px)'}}>
-        <Content htmlContent={htmlContent} />
-        <OptimizerSettings hidden={Boolean(!htmlContent)} />
-      </main> */}
+        convertAnimation(images);
+    };
 
-      <main>
-        <StagesList 
-          activeStage={activeStage} 
-          changeStageHandler={changeStageHandler}
-          stagesHandlers={stagesHandlers}
-          content={content}/>
-      </main>
+    const convertAnimation = async (images) => {
+        const fetchRes = await fetch("/api/parser", {
+            method: "POST",
+            body: JSON.stringify({
+                html: content.html,
+                images
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-      <footer className={styles.footer}>
-      </footer>
-    </>
-  )
-}
+        if (!fetchRes.ok) {
+            return;
+        }
 
+        const html = await fetchRes.text();
+        setContent({ ...content, html, images: [] });
+        setActiveStage(3);
+    }
+    
+
+    const stagesHandlers = [
+        {
+            fileInsertHandler,
+            htmlUploadHandler,
+            imageInsertHandler,
+            zipUploadHandler,
+        },
+        {
+            imageInsertHandler,
+        },
+    ];
+
+    return (
+        <>
+            <Head>
+                <title>Animation optimizer</title>
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+
+            <main>
+                <StagesList
+                    stagesHandlers={stagesHandlers}
+                    availableStagesCount={activeStage}
+                    content={content}
+                />
+            </main>
+
+            <footer className={styles.footer}></footer>
+        </>
+    );
+};
 
 export default Home;

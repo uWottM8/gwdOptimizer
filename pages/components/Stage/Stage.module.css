@@ -1,7 +1,4 @@
 .stage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
 }
 
@@ -25,10 +22,6 @@
 }
 
 .stage__handler {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
     margin: 24px 0 16px;
 }
 

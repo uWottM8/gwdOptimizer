@@ -5,10 +5,10 @@ import menuData from './Menu.json';
 import ContentUploader from '../ContentUploader/ContentUploader';
 import ContentInserter from '../ContentInserter/ContentInserter';
 
-const Menu = ({hidden, menuHiddenHandler, fileUploadHandler, fileInsertHandler}) => {
+const Menu = ({hidden, menuHiddenHandler, htmlUploadHandler, fileInsertHandler}) => {
     const { menuItems } = menuData;
     const menuElementsList = [
-        <ContentUploader fileUploadHandler={fileUploadHandler}/>,
+        <ContentUploader htmlUploadHandler={htmlUploadHandler}/>,
         <ContentInserter fileInsertHandler={fileInsertHandler}/>
     ];
 

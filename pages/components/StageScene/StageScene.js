@@ -4,43 +4,36 @@ import Stage from '../Stage/Stage';
 import ContentUploader from '../ContentUploader/ContentUploader';
 import ContentInserter from '../ContentInserter/ContentInserter';
 import ImageUploader from '../ImageUploader/ImageUploader';
+import ContentObserver from '../ContentObserver/ContentObserver';
+import ZipUploader from '../ZipUploader/ZipUploader';
 
-const StagesList = ({activeStage, changeStageHandler, stagesHandlers, content}) => {
+const StagesList = ({stagesHandlers, content, availableStagesCount}) => {
     const stages = [
-        {
-            ...stagesData[0],
-            children:  [
-                <ContentUploader fileUploadHandler={stagesHandlers[0].fileUploadHandler}/>,
-                <ContentInserter fileInsertHandler={stagesHandlers[0].fileInsertHandler}/>
-            ]
-        },
-        {
-            ...stagesData[1],
-            children:  [
-                <ImageUploader imageInsertHandler={stagesHandlers[1].imageInsertHandler} imagesNames={content.images}/>
-            ]
-        },
-        {
-            ...stagesData[2],
-            children:  [
-                null
-            ]
-        },
-        {
-            ...stagesData[3],
-            children:  [
-                null
-            ]
-        },
+       (<>
+            <ContentUploader htmlUploadHandler={stagesHandlers[0].htmlUploadHandler}/>
+            <ContentInserter fileInsertHandler={stagesHandlers[0].fileInsertHandler}/>
+            <ZipUploader zipUploadHandler={stagesHandlers[0].zipUploadHandler}/>
+       </>),
+        (<ImageUploader 
+            imageInsertHandler={stagesHandlers[1].imageInsertHandler} 
+            imagesNames={content.images.map(({name}) => name)}
+        />),
+        (<ContentObserver {...content}/>)
     ];
 
     return (
        <div className={styles.stageScene}>
            <ul className={styles.stageScene__list}>
                {
-                   stages.map((stageData) => (
+                   stages
+                    .slice(0, availableStagesCount)
+                    .map((stageData, i) => (
                         <li key={stageData.storageKey} className={styles.stageScene__item}>
-                            <Stage {...stageData}/>
+                            <Stage {...stagesData[i]}>
+                            {
+                                stages[i]    
+                            }
+                            </Stage>
                         </li>
                     ))
                }

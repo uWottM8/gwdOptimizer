@@ -131,11 +131,16 @@ const AnimationBoxChanger = ({ children }) => {
     return (
         <>
             {/*Панель для редактирования паддинга*/}
-            <div>
+            <div className={styles.boxPanel}>
                 {paddingEditorState.isActive ? (
-                    <>
-                        <span>
-                            <label for="Left">Слева</label>
+                    <div className={styles.boxPanel__elements}>
+                        <div className={styles.boxPanel__control}>
+                            <label 
+                                htmlFor="Left"
+                                className={styles.boxPanel__label}
+                            >
+                                Слева
+                            </label>
                             <input
                                 id="Left"
                                 type="text"
@@ -144,9 +149,14 @@ const AnimationBoxChanger = ({ children }) => {
                                     changePaddingOnInput(event.target, "Left")
                                 }
                             />
-                        </span>
-                        <span>
-                            <label for="Right">Справа</label>
+                        </div>
+                        <div className={styles.boxPanel__control}>
+                            <label
+                                className={styles.boxPanel__label} 
+                                htmlFor="Right"
+                            >
+                                Справа
+                            </label>
                             <input
                                 id="Right"
                                 type="text"
@@ -155,22 +165,28 @@ const AnimationBoxChanger = ({ children }) => {
                                     changePaddingOnInput(event.target, "Right")
                                 }
                             />
-                        </span>
+                        </div>
 
-                        <span>
-                            <label for="proportion">Сохранять пропорции</label>
+                        <div className={styles.boxPanel__control}>
+                            <label 
+                                htmlFor="proportion"
+                                className={styles.boxPanel__label} 
+                            >
+                                    Пропорции
+                            </label>
                             <input
                                 type="checkbox"
                                 id="proportion"
                                 value={paddingEditorState.isProportional}
                                 onChange={toggleProportionaPaddingEditorEvent}
                             />
-                        </span>
-
-                        <button onClick={hidePaddingEditorEvent}>
-                            &times;
-                        </button>
-                    </>
+                        </div>
+                        <div className={styles.boxPanel__control}>
+                            <button onClick={hidePaddingEditorEvent}>
+                                &times;
+                            </button>
+                        </div>
+                    </div>
                 ) : (
                     <button onClick={showPaddingEditorEvent}>
                         Редактировать отступы

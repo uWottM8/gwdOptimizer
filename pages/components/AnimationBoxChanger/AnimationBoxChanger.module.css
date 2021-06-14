@@ -1,3 +1,27 @@
+.boxPanel {
+    margin-bottom: 16px;
+}
+
+.boxPanel__elements {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.boxPanel__control {
+    margin-top: 8px;
+    white-space: nowrap;
+}
+.boxPanel__control + .boxPanel__control {
+   margin-left: 12px;
+}
+
+.boxPanel__label {
+    margin-right: 8px;
+    font-weight: 600;
+}
+
 /*Маржин*/
 .boxChanger__marginBox {
     position: relative;
@@ -43,12 +67,10 @@
 
 /*  Бокс внутренних отсупов  */
 .boxChanger__paddingBox {
-    position: relative;
-    margin: auto;
     background: repeating-radial-gradient(
         circle,
-        var(--primary-color),
-        var(--primary-color) 7px,
+        var(--color-primary),
+        var(--color-primary) 7px,
         #ffffff 7px,
         #ffffff 12px);
     background-size: 12px 12px;

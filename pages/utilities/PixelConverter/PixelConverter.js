@@ -1,6 +1,7 @@
 import converterData from './PixelConverter.json';
 import { JSDOM } from "jsdom";
 import CssParser from "../CssParser/CssParser";
+import beautifier from 'js-beautify';
 
 class PixelConverter {
     #defaultSettings = {
@@ -345,24 +346,26 @@ class PixelConverter {
         };
     }
 
+    #getFormattedHtml() {
+        let bodyHTML = this.document.body.outerHTML;
+        bodyHTML = bodyHTML.replace('<body', '<div');
+        bodyHTML = bodyHTML.replace('</body', '</div');
+        return beautifier.html_beautify(bodyHTML);
+    }
+
     parsePxToPercents(htmlString, imagesData) {
         this.#writeDOMContent(htmlString);
         this.#writeStylesContent();
         this.#initSelectorToElementConnections();
         this.#calcContainerSizes();
-        console.log(this.containerSizes);
 
         this.#convertPixelsToPercents();
         this.#replaceImagesWithSvg(imagesData);
         this.#setContainer();
         this.#insertStylesIntoDocument();
 
-
-        let bodyHTML = this.document.body.outerHTML;
-        bodyHTML = bodyHTML.replace('<body', '<div');
-        bodyHTML = bodyHTML.replace('</body', '</div');
-
-        return bodyHTML;
+        const formattedHtml = this.#getFormattedHtml();
+        return formattedHtml;
     }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Hash from "./utils/Hash/Hash";
+import Hash from "./utilities/Hash/Hash";
 import Head from "next/head";
 // import Menu from './components/Menu/Menu';
 // import Content from './components/Content/Content';
@@ -7,10 +7,10 @@ import Head from "next/head";
 import StagesList from "./components/StageScene/StageScene";
 import styles from "../styles/Home.module.css";
 
-import parseImgNamesFromHtml from './utils/ImagesFromHtml/ImagesFromHtml';
+import ImagesFromHtmlParser from './utilities/ImagesFromHtmlParser/ImagesFromHtmlParser';
 
 //почему не получается импортировать ?
-// import {ZipReader, BlobReader, TextWriter} from "@zip.js/zip.js";
+// import * as zip from "@zip.js/zip.js";
 
 const Home = () => {
     const [activeStage, setActiveStage] = useState(1);
@@ -21,6 +21,17 @@ const Home = () => {
         html: null,
         images: [],
     });
+
+    const fileUploadHandler = (file) => {
+        const {type} = file;
+        if (type === 'application/x-zip-compressed') {
+            zipUploadHandler(file);
+        } else if (type === 'text/html') {
+            htmlUploadHandler(file);
+        } else {
+            throw new Error('неподдерживаемый формат файла');
+        }
+    }
 
     const htmlUploadHandler = async (htmlFile) => {
         const {name: primaryFileName} = htmlFile;
@@ -34,34 +45,33 @@ const Home = () => {
 
     const switchToImagesUploadStage = (primaryFileName, html) => {
         const secondaryFileName = Hash.createHashFileName(primaryFileName);
-        const imgNames = parseImgNamesFromHtml(html);
+        const imgNames = ImagesFromHtmlParser.parseImgNamesFromHtml(html);
         const images = imgNames.map((name) => ({name, value: null}));
         setContent({ html, images, name: secondaryFileName });
         setActiveStage(2);
     }
 
     const zipUploadHandler = async (zipFile) => {
-        const reader = new ZipReader(new BlobReader(zipFile));
-        const entries = await reader.getEntries()
-        const fileNamePattern = /[^\.\\\/]+\.\w+$/i;
-        const files = await Promise.all(entries
-            .filter(({filename}) => filename.match(fileNamePattern))
-            .map(async (entry) => {
-                const {filename} = entry;
-                    const shortFileName = filename.match(fileNamePattern)[0];
-                    const value = await entry.getData(new TextWriter());
-                    return {
-                        name: shortFileName,
-                        value 
-                    }
-        }));
-        const {value: html} = files.find(({name}) => name.includes('.html'));
-        const images = files.filter(({value}) => value !== htmlValue);
-        setContent({...content, html});
-        convertAnimation(images)
+        const formData = new FormData();
+        formData.append('zip', zipFile);
+        const fetchRes = await fetch('/api/zipParser', {
+            method: 'POST',
+            body: formData
+        });
+        if (!fetchRes.ok) {
+            throw new Error('erron in zip parse')
+        }
+        const {images, name, html} = await fetchRes.json();
+        console.log({name});
+        const requiredImages = ImagesFromHtmlParser.parseImgNamesFromHtml(html);
+        const correctRecievedImages = images.filter((image) => requiredImages.includes(image.name));
+        if (correctRecievedImages.length === requiredImages.length) {
+            setContent({html, name, images: correctRecievedImages});
+            convertAnimation(html, correctRecievedImages, name);
+        }
     };
 
-    const imageInsertHandler = async (files) => {
+    const imagesUploadHandler = async (files) => {
         const images = await Promise.all(files.map(async (file) => {
             const { name } = file;
             const value = await file.text();
@@ -71,14 +81,14 @@ const Home = () => {
             };
         }))
 
-        convertAnimation(images);
+        convertAnimation(content.html, images, content.name);
     };
 
-    const convertAnimation = async (images) => {
-        const fetchRes = await fetch("/api/parser", {
+    const convertAnimation = async (html, images, name) => {
+        const fetchRes = await fetch("/api/htmlParser", {
             method: "POST",
             body: JSON.stringify({
-                html: content.html,
+                html,
                 images
             }),
             headers: {
@@ -90,8 +100,8 @@ const Home = () => {
             return;
         }
 
-        const html = await fetchRes.text();
-        setContent({ ...content, html, images: [] });
+        const convertedHtml = await fetchRes.text();
+        setContent({ name, html: convertedHtml, images: [] });
         setActiveStage(3);
     }
     
@@ -99,12 +109,10 @@ const Home = () => {
     const stagesHandlers = [
         {
             fileInsertHandler,
-            htmlUploadHandler,
-            imageInsertHandler,
-            zipUploadHandler,
+            fileUploadHandler,
         },
         {
-            imageInsertHandler,
+            imagesUploadHandler,
         },
     ];
 
@@ -114,6 +122,13 @@ const Home = () => {
                 <title>Animation optimizer</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+
+            <header className={styles.header}>
+                <div className={styles.header__inner}>
+                    <span className={styles.header__logo}>Animation Optimizer</span>
+                    <span></span>
+                </div>
+            </header>
 
             <main>
                 <StagesList

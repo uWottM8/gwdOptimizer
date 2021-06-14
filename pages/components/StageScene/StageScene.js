@@ -1,44 +1,56 @@
-import stagesData from './StagesConfig.json';
-import styles from './StageScene.module.css';
-import Stage from '../Stage/Stage';
-import ContentUploader from '../ContentUploader/ContentUploader';
-import ContentInserter from '../ContentInserter/ContentInserter';
-import ImageUploader from '../ImageUploader/ImageUploader';
-import ContentObserver from '../ContentObserver/ContentObserver';
-import ZipUploader from '../ZipUploader/ZipUploader';
+import {stagesContent, stagesStates} from "./StagesConfig.json";
+import styles from "./StageScene.module.css";
+import Stage from "../Stage/Stage";
+import StageHtmlUpload from "../StageContentUpload/StageContentUpload";
+import StageImagesUpload from "../StageImagesUpload/StageImagesUpload";
+import ContentObserver from "../ContentObserver/ContentObserver";
+import { useState, useEffect } from "react";
 
-const StagesList = ({stagesHandlers, content, availableStagesCount}) => {
-    const stages = [
-       (<>
-            <ContentUploader htmlUploadHandler={stagesHandlers[0].htmlUploadHandler}/>
-            <ContentInserter fileInsertHandler={stagesHandlers[0].fileInsertHandler}/>
-            <ZipUploader zipUploadHandler={stagesHandlers[0].zipUploadHandler}/>
-       </>),
-        (<ImageUploader 
-            imageInsertHandler={stagesHandlers[1].imageInsertHandler} 
-            imagesNames={content.images.map(({name}) => name)}
-        />),
-        (<ContentObserver {...content}/>)
-    ];
+const StagesList = ({ stagesHandlers, content, availableStagesCount }) => {
+    const [stagesActiveStates, setStagesActiveStates] = useState([true]);
+
+    const stagesList = [
+        {
+            content: (
+                <StageHtmlUpload 
+                    handlers={stagesHandlers[0]}/>),
+            isActive: availableStagesCount === 1
+        },
+        {
+            content: (<StageImagesUpload 
+                        handlers={stagesHandlers[1]}
+                        content={content.images.map(({ name }) => name)}
+                    />),
+            isActive: availableStagesCount === 2
+        },
+        {
+            content: (<ContentObserver {...content} />),
+            isActive: availableStagesCount === 3
+        }
+
+    ].slice(0, availableStagesCount)
 
     return (
-       <div className={styles.stageScene}>
-           <ul className={styles.stageScene__list}>
-               {
-                   stages
-                    .slice(0, availableStagesCount)
-                    .map((stageData, i) => (
-                        <li key={stageData.storageKey} className={styles.stageScene__item}>
-                            <Stage {...stagesData[i]}>
-                            {
-                                stages[i]    
-                            }
-                            </Stage>
-                        </li>
-                    ))
-               }
-           </ul>
-       </div>
+        <div className={styles.stageScene}>
+            <ul className={styles.stageScene__list}>
+                {
+                    stagesList
+                        .map(({content, isActive}, i) => (
+                            <li
+                                key={stagesContent[i].storageKey}
+                                className={styles.stageScene__item}
+                            >
+                                <Stage 
+                                    {...stagesContent[i]}
+                                    isActive={isActive}
+                                >
+                                    {content}
+                                </Stage>
+                            </li>
+                        ))
+                }
+            </ul>
+        </div>
     );
 };
 

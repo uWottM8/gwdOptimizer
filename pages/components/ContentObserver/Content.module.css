@@ -27,7 +27,7 @@
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-color: var(--primary-color);
+    background-color: var(--color-primary);
 }
 
 .contentObserver__toggler {

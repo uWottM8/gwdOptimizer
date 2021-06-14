@@ -1,0 +1,9 @@
+.codeViewer {
+    position: "relative";
+    z-index: 10;
+}
+
+.codeViewer__toggleBtn {
+    background: transparent;
+    color: var(--color-primary);
+}

@@ -1,21 +1,29 @@
-[
-    {
-        "storageKey": 1,
-        "title": "Добавьте HTML",
-        "subtitle": "Загрузить HTML-структуру одним из двух способов"
+{
+    "stagesStates": {
+        "ACTIVE": 0,
+        "HIDDEN": 1,
+        "DISABLED": 2
     },
-    {
-        "storageKey": 2,
-        "title": "Добавьте векторные изображения",
-        "subtitle": "Загрузите использующиеся изображения в формате svg"
-    },
-    {
-        "storageKey": 3,
-        "title": "Установите дополнительные параметры",
-        "subtitle": ""
-    },
-    {
-        "storageKey": 4,
-        "title": "Скачайте HTML"
-    }
-]
+
+    "stagesContent": [
+        {
+            "storageKey": 1,
+            "title": "Добавьте HTML",
+            "subtitle": "Загрузить HTML-структуру одним из двух способов"
+        },
+        {
+            "storageKey": 2,
+            "title": "Добавьте векторные изображения",
+            "subtitle": "Загрузите использующиеся изображения в формате svg"
+        },
+        {
+            "storageKey": 3,
+            "title": "Установите дополнительные параметры",
+            "subtitle": ""
+        },
+        {
+            "storageKey": 4,
+            "title": "Скачайте HTML"
+        }
+    ]
+}

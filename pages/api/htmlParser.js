@@ -1,6 +1,6 @@
-import fs from "fs";
-import CssParser from "../utils/CssParser/CssParser";
-import PixelConverter from "../utils/PixelConverter/PixelConverter";
+
+import CssParser from "../utilities/CssParser/CssParser";
+import PixelConverter from "../utilities/PixelConverter/PixelConverter";
 import path from "path";
 
 export default (req, res) => {

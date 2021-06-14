@@ -1,0 +1,27 @@
+.animationPlayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 8px;
+    z-index: 10;
+    background: #ffffffc7;
+    border-radius: 24px;
+}
+
+.animationPlayer__control {
+    width: 40px;
+    height: 40px;
+    color: gray;
+    background: transparent;
+    transition: color .3s;
+    padding: 0;
+}
+
+.animationPlayer__control:hover {
+    color: black
+}
+
+.animationPlayer__control svg {
+    width: 100%;
+    height: 100%;
+}

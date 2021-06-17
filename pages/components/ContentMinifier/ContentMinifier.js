@@ -1,17 +1,17 @@
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react";
 // import { optimize } from 'svgo';
 // import minifyier from 'html-minifier';
-import ImagesFromHtmlParser from '../../utilities/ImagesFromHtmlParser/ImagesFromHtmlParser';
-import styles from './ContentMinifier.module.css';
+import ImagesFromHtmlParser from "../../utilities/ImagesFromHtmlParser/ImagesFromHtmlParser";
+import styles from "./ContentMinifier.module.css";
 
-const ContentMinifier = ({primaryHtml, localHtml, minifyHandler}) => {
-
-    const [minifierPanelVisibility, setMinifierPanelVisibility] = useState(false);
+const ContentMinifier = ({ primaryHtml, localHtml, minifyHandler }) => {
+    const [minifierPanelVisibility, setMinifierPanelVisibility] =
+        useState(false);
     // const [htmlMinified, setHtmlMinified] = useState(false);
 
     const minifierVisibilityToggleEvent = (event) => {
         setMinifierPanelVisibility(!minifierPanelVisibility);
-    }
+    };
 
     const toggleHtmlMinifierEvent = (event) => {
         const checkBox = event.target;
@@ -19,12 +19,12 @@ const ContentMinifier = ({primaryHtml, localHtml, minifyHandler}) => {
         if (isCheckBoxOn) {
             const newLocalHtml = removeSpaces(localHtml);
             // const newLocalHtml = minifyier.minify(localHtml);
-            minifyHandler(newLocalHtml)
+            minifyHandler(newLocalHtml);
         } else {
-            minifyHandler(primaryHtml)
+            minifyHandler(primaryHtml);
         }
-    }
-    
+    };
+
     const toggleSvgMinifyEvent = (event) => {
         const checkBox = event.target;
         const isCheckBoxOn = checkBox.checked;
@@ -35,21 +35,27 @@ const ContentMinifier = ({primaryHtml, localHtml, minifyHandler}) => {
         const svgImages = ImagesFromHtmlParser.parseSVG(primaryHtml);
         const optimizedSvgImages = svgImages.map((svg) => optimizeSvg(svg));
         console.log(optimizedSvgImages);
-        const optimizedHtml = svgImages.reduce((res, svg, i) => res.replace(svg, optimizedSvgImages[i]), localHtml); //заменить на localHtml
+        const optimizedHtml = svgImages.reduce(
+            (res, svg, i) => res.replace(svg, optimizedSvgImages[i]),
+            localHtml
+        ); //заменить на localHtml
         // const optimizedHtml = optimizeSvg(localHtml);
         minifyHandler(optimizedHtml);
-    }
+    };
 
     const removeSpaces = (html) => {
-        const stringsToReplace = [...html.matchAll(/[>;{}](\s*)/gmis)]
+        const stringsToReplace = [...html.matchAll(/[>;{}](\s*)/gims)]
             .map(([fullMatchStr, ...groups]) => groups)
             .flat();
-        const htmlWithoutSpacers = stringsToReplace.reduce((res, stringToReplace) => res.replace(stringToReplace, ''), html);
+        const htmlWithoutSpacers = stringsToReplace.reduce(
+            (res, stringToReplace) => res.replace(stringToReplace, ""),
+            html
+        );
         return htmlWithoutSpacers;
-    }
+    };
 
     const optimizeSvg = (svg) => {
-        const {data} = optimize(svg, {
+        const { data } = optimize(svg, {
             cleanupAttrs: false,
             mergeStyles: false,
             inlineStyles: false,
@@ -84,7 +90,7 @@ const ContentMinifier = ({primaryHtml, localHtml, minifyHandler}) => {
             moveElemsAttrsToGroup: false,
             moveGroupAttrsToElems: false,
             collapseGroups: false,
-            removeRasterImages:false,
+            removeRasterImages: false,
             mergePaths: false,
             convertShapeToPath: false,
             convertEllipseToCircle: false,
@@ -99,56 +105,61 @@ const ContentMinifier = ({primaryHtml, localHtml, minifyHandler}) => {
             removeOffCanvasPaths: false,
             removeStyleElement: false,
             removeScriptElement: false,
-            reusePaths: false
+            reusePaths: false,
         });
         return data;
-    }
+    };
 
     return (
-        <div>
-            {
-                minifierPanelVisibility
-                ? (
-                    <div>
+        <div className={styles.contentMinifier}>
+            {minifierPanelVisibility ? (
+                <>
+                    <div className={styles.contentMinifier__controls}>
                         <span>
-                            <label 
-                                htmlFor="minifyHtml">
-                                Удалить пробелы
-                            </label>
-                            <input 
+                            <input
                                 type="checkbox"
-                                id="minifyHtml" 
-                                onChange={toggleHtmlMinifierEvent} />
+                                id="minifyHtml"
+                                onChange={toggleHtmlMinifierEvent}
+                            />
+                            <label htmlFor="minifyHtml">Удалить пробелы</label>
                         </span>
                         <span>
-                            <label 
-                                htmlFor="minifySvg">
+                            <input
+                                type="checkbox"
+                                id="minifySvg"
+                                onChange={toggleSvgMinifyEvent}
+                            />
+                            <label htmlFor="minifySvg">
                                 Минифицировать SVG
                             </label>
-                            <input 
-                                type="checkbox"
-                                id="minifySvg" 
-                                onChange={toggleSvgMinifyEvent} />
                         </span>
-                        <span>
-                            Степень сжатия:&nbsp; 
-                            {
-                               ((primaryHtml.length - localHtml.length) / primaryHtml.length * 100).toFixed(1)
-                            }%
-                        </span>
-                        <button onClick={minifierVisibilityToggleEvent}>
-                            &times;
-                        </button>
                     </div>
-                ) : (
+                    <div className={styles.contentMinifier__compression}>
+                        <span
+                            className={styles.contentMinifier__compressionLabel}
+                        >
+                            Cжатие:
+                        </span>
+                        <span className={styles.contentMinifier__compressionValue}>
+                            {(
+                                ((primaryHtml.length - localHtml.length) /
+                                    primaryHtml.length) *
+                                100
+                            ).toFixed(1)}
+                            %
+                        </span>
+                    </div>
                     <button onClick={minifierVisibilityToggleEvent}>
-                        Минифицировать HTML
+                        &times;
                     </button>
-                )
-            }
-           
+                </>
+            ) : (
+                <button onClick={minifierVisibilityToggleEvent}>
+                    Минифицировать HTML
+                </button>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default ContentMinifier;

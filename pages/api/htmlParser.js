@@ -1,7 +1,4 @@
-
-import CssParser from "../utilities/CssParser/CssParser";
 import PixelConverter from "../utilities/PixelConverter/PixelConverter";
-import path from "path";
 
 export default (req, res) => {
     const { body } = req;

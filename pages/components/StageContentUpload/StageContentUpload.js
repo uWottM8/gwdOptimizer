@@ -2,7 +2,7 @@ import ContentUploader from "../ContentUploader/ContentUploader";
 import ContentInserter from "../HtmlInserter/HtmlInserter";
 import styles from "./StageContentUpload.module.css"
 
-const StageHtmlUpload = ({
+const StageContentUpload = ({
     handlers: {
         fileUploadHandler, fileInsertHandler
     }}) => {
@@ -25,4 +25,4 @@ const StageHtmlUpload = ({
     );
 }
 
-export default StageHtmlUpload;
+export default StageContentUpload;

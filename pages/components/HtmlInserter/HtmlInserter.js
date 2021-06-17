@@ -21,11 +21,12 @@ const ContentInserter = ({ fileInsertHandler }) => {
     };
 
     return inputAvailable ? (
-        <input 
+        <input
             type="text"
-            placeholder="<html>...</html>" 
-            autoFocus 
-            onBlur={insertInputBlurHandler} />
+            placeholder="<html>...</html>"
+            autoFocus
+            onBlur={insertInputBlurHandler}
+        />
     ) : (
         <button onClick={insertBtnClickHandler}>
             <svg
